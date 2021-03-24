@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server';
 import { typeDefs } from "./schemas";
 import { resolvers } from "./resolvers";
 import { context } from './context';
-import { schema }  from "./datastore";
+import { schema }  from "./datastoreSchema";
 
 const server = new ApolloServer(
   {
