@@ -1,5 +1,5 @@
 
-class PostgresProvider {
+class TravelNoticeDataProvider {
     
     constructor(private _dbClient: any)
     {    

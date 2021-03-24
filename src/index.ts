@@ -1,8 +1,16 @@
 import { ApolloServer } from 'apollo-server';
 import { typeDefs } from "./schemas";
 import { resolvers } from "./resolvers";
-  
-const server = new ApolloServer({ typeDefs, resolvers });
+import { context } from './context';
+import { schema }  from "./datastore";
+
+const server = new ApolloServer(
+  {
+    typeDefs: typeDefs, 
+    resolvers: resolvers, 
+    context: context,
+    schema: schema
+  });
 
   // The `listen` method launches a web server.
   server.listen().then(({ url }) => {
