@@ -12,8 +12,9 @@ const books = [
   },
 ];
 
-
 const prisma = new PrismaClient()
+const travelNoticeProvider = new TravelNoticeDataProvider(prisma);
+const covidNoticeProvider = new CovidNoticeDataProvider(prisma);
 
 export const resolvers = {
   Query: {
