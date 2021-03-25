@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^2.19.0",
+    "@prisma/engines": "^2.20.0-14.f461292a2242db52d9f4c87995f0237aacd300d2",
     "@types/graphql-iso-date": "^3.4.0",
     "@types/node": "^14.14.35",
     "graphql-iso-date": "^3.6.1",

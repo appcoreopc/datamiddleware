@@ -23,7 +23,7 @@ const Query = objectType({
         return context.prisma.user.findMany()
       },
     })
-
+    
     t.nullable.field('postById', {
       type: 'Post',
       args: {
@@ -35,7 +35,7 @@ const Query = objectType({
         })
       },
     })
-
+    
     t.nonNull.list.nonNull.field('feed', {
       type: 'Post',
       args: {
@@ -48,14 +48,14 @@ const Query = objectType({
       },
       resolve: (_parent, args, context: Context) => {
         const or = args.searchString
-          ? {
-              OR: [
-                { title: { contains: args.searchString } },
-                { content: { contains: args.searchString } },
-              ],
-            }
-          : {}
-
+        ? {
+          OR: [
+            { title: { contains: args.searchString } },
+            { content: { contains: args.searchString } },
+          ],
+        }
+        : {}
+        
         return context.prisma.post.findMany({
           where: {
             published: true,
@@ -67,7 +67,7 @@ const Query = objectType({
         })
       },
     })
-
+    
     t.list.field('draftsByUser', {
       type: 'Post',
       args: {
@@ -75,10 +75,10 @@ const Query = objectType({
           arg({
             type: 'UserUniqueInput',
           }),
-        ),
-      },
-      resolve: (_parent, args, context: Context) => {
-        return context.prisma.user
+          ),
+        },
+        resolve: (_parent, args, context: Context) => {
+          return context.prisma.user
           .findUnique({
             where: {
               id: args.userUniqueInput.id || undefined,
@@ -90,224 +90,224 @@ const Query = objectType({
               published: false,
             },
           })
-      },
-    })
-  },
-})
-
-const Mutation = objectType({
-  name: 'Mutation',
-  definition(t) {
-    t.nonNull.field('signupUser', {
-      type: 'User',
-      args: {
-        data: nonNull(
-          arg({
-            type: 'UserCreateInput',
-          }),
-        ),
-      },
-      resolve: (_, args, context: Context) => {
-        const postData = args.data.posts?.map((post:any) => {
-          return { title: post.title, content: post.content || undefined }
-        })
-        return context.prisma.user.create({
-          data: {
-            name: args.data.name,
-            email: args.data.email,
-            posts: {
-              create: postData,
-            },
+        },
+      })
+    },
+  })
+  
+  const Mutation = objectType({
+    name: 'Mutation',
+    definition(t) {
+      t.nonNull.field('signupUser', {
+        type: 'User',
+        args: {
+          data: nonNull(
+            arg({
+              type: 'UserCreateInput',
+            }),
+            ),
+          },
+          resolve: (_, args, context: Context) => {
+            const postData = args.data.posts?.map((post:any) => {
+              return { title: post.title, content: post.content || undefined }
+            })
+            return context.prisma.user.create({
+              data: {
+                name: args.data.name,
+                email: args.data.email,
+                posts: {
+                  create: postData,
+                },
+              },
+            })
           },
         })
-      },
-    })
-
-    t.field('createDraft', {
-      type: 'Post',
-      args: {
-        data: nonNull(
-          arg({
-            type: 'PostCreateInput',
-          }),
-        ),
-        authorEmail: nonNull(stringArg()),
-      },
-      resolve: (_, args, context: Context) => {
-        return context.prisma.post.create({
-          data: {
-            title: args.data.title,
-            content: args.data.content,
-            author: {
-              connect: { email: args.authorEmail },
+        
+        t.field('createDraft', {
+          type: 'Post',
+          args: {
+            data: nonNull(
+              arg({
+                type: 'PostCreateInput',
+              }),
+              ),
+              authorEmail: nonNull(stringArg()),
             },
+            resolve: (_, args, context: Context) => {
+              return context.prisma.post.create({
+                data: {
+                  title: args.data.title,
+                  content: args.data.content,
+                  author: {
+                    connect: { email: args.authorEmail },
+                  },
+                },
+              })
+            },
+          })
+          
+          t.field('togglePublishPost', {
+            type: 'Post',
+            args: {
+              id: nonNull(intArg()),
+            },
+            resolve: async (_, args, context: Context) => {
+              try {
+                const post = await context.prisma.post.findUnique({
+                  where: { id: args.id || undefined },
+                  select: {
+                    published: true,
+                  },
+                })
+                return context.prisma.post.update({
+                  where: { id: args.id || undefined },
+                  data: { published: !post?.published },
+                })
+              } catch (e) {
+                throw new Error(
+                  `Post with ID ${args.id} does not exist in the database.`,
+                  )
+                }
+              },
+            })
+            
+            t.field('incrementPostViewCount', {
+              type: 'Post',
+              args: {
+                id: nonNull(intArg()),
+              },
+              resolve: (_, args, context: Context) => {
+                return context.prisma.post.update({
+                  where: { id: args.id || undefined },
+                  data: {
+                    viewCount: {
+                      increment: 1,
+                    },
+                  },
+                })
+              },
+            })
+            
+            t.field('deletePost', {
+              type: 'Post',
+              args: {
+                id: nonNull(intArg()),
+              },
+              resolve: (_, args, context: Context) => {
+                return context.prisma.post.delete({
+                  where: { id: args.id },
+                })
+              },
+            })
           },
         })
-      },
-    })
-
-    t.field('togglePublishPost', {
-      type: 'Post',
-      args: {
-        id: nonNull(intArg()),
-      },
-      resolve: async (_, args, context: Context) => {
-        try {
-          const post = await context.prisma.post.findUnique({
-            where: { id: args.id || undefined },
-            select: {
-              published: true,
-            },
-          })
-          return context.prisma.post.update({
-            where: { id: args.id || undefined },
-            data: { published: !post?.published },
-          })
-        } catch (e) {
-          throw new Error(
-            `Post with ID ${args.id} does not exist in the database.`,
-          )
-        }
-      },
-    })
-
-    t.field('incrementPostViewCount', {
-      type: 'Post',
-      args: {
-        id: nonNull(intArg()),
-      },
-      resolve: (_, args, context: Context) => {
-        return context.prisma.post.update({
-          where: { id: args.id || undefined },
-          data: {
-            viewCount: {
-              increment: 1,
-            },
+        
+        const User = objectType({
+          name: 'User',
+          definition(t) {
+            t.nonNull.int('id')
+            t.string('name')
+            t.nonNull.string('email')
+            t.nonNull.list.nonNull.field('posts', {
+              type: 'Post',
+              resolve: (parent, _, context: Context) => {
+                return context.prisma.user
+                .findUnique({
+                  where: { id: parent.id || undefined },
+                })
+                .posts()
+              },
+            })
           },
         })
-      },
-    })
-
-    t.field('deletePost', {
-      type: 'Post',
-      args: {
-        id: nonNull(intArg()),
-      },
-      resolve: (_, args, context: Context) => {
-        return context.prisma.post.delete({
-          where: { id: args.id },
+        
+        const Post = objectType({
+          name: 'Post',
+          definition(t) {
+            t.nonNull.int('id')
+            t.nonNull.field('createdAt', { type: 'DateTime' })
+            t.nonNull.field('updatedAt', { type: 'DateTime' })
+            t.nonNull.string('title')
+            t.string('content')
+            t.nonNull.boolean('published')
+            t.nonNull.int('viewCount')
+            t.field('author', {
+              type: 'User',
+              resolve: (parent, _, context: Context) => {
+                return context.prisma.post
+                .findUnique({
+                  where: { id: parent.id || undefined },
+                })
+                .author()
+              },
+            })
+          },
         })
-      },
-    })
-  },
-})
-
-const User = objectType({
-  name: 'User',
-  definition(t) {
-    t.nonNull.int('id')
-    t.string('name')
-    t.nonNull.string('email')
-    t.nonNull.list.nonNull.field('posts', {
-      type: 'Post',
-      resolve: (parent, _, context: Context) => {
-        return context.prisma.user
-          .findUnique({
-            where: { id: parent.id || undefined },
-          })
-          .posts()
-      },
-    })
-  },
-})
-
-const Post = objectType({
-  name: 'Post',
-  definition(t) {
-    t.nonNull.int('id')
-    t.nonNull.field('createdAt', { type: 'DateTime' })
-    t.nonNull.field('updatedAt', { type: 'DateTime' })
-    t.nonNull.string('title')
-    t.string('content')
-    t.nonNull.boolean('published')
-    t.nonNull.int('viewCount')
-    t.field('author', {
-      type: 'User',
-      resolve: (parent, _, context: Context) => {
-        return context.prisma.post
-          .findUnique({
-            where: { id: parent.id || undefined },
-          })
-          .author()
-      },
-    })
-  },
-})
-
-const SortOrder = enumType({
-  name: 'SortOrder',
-  members: ['asc', 'desc'],
-})
-
-const PostOrderByUpdatedAtInput = inputObjectType({
-  name: 'PostOrderByUpdatedAtInput',
-  definition(t) {
-    t.nonNull.field('updatedAt', { type: 'SortOrder' })
-  },
-})
-
-const UserUniqueInput = inputObjectType({
-  name: 'UserUniqueInput',
-  definition(t) {
-    t.int('id')
-    t.string('email')
-  },
-})
-
-const PostCreateInput = inputObjectType({
-  name: 'PostCreateInput',
-  definition(t) {
-    t.nonNull.string('title')
-    t.string('content')
-  },
-})
-
-const UserCreateInput = inputObjectType({
-  name: 'UserCreateInput',
-  definition(t) {
-    t.nonNull.string('email')
-    t.string('name')
-    t.list.nonNull.field('posts', { type: 'PostCreateInput' })
-  },
-})
-
-export const schema = makeSchema({
-  types: [
-    Query,
-    Mutation,
-    Post,
-    User,
-    UserUniqueInput,
-    UserCreateInput,
-    PostCreateInput,
-    SortOrder,
-    PostOrderByUpdatedAtInput,
-    DateTime,
-  ],
-  outputs: {
-    schema: __dirname + '/../schema.graphql',
-    typegen: __dirname + '/generated/nexus.ts',
-  },
-  contextType: {
-    module: require.resolve('./context'),
-    export: 'Context',
-  },
-  sourceTypes: {
-    modules: [
-      {
-        module: '@prisma/client',
-        alias: 'prisma',
-      },
-    ],
-  },
-})
+        
+        const SortOrder = enumType({
+          name: 'SortOrder',
+          members: ['asc', 'desc'],
+        })
+        
+        const PostOrderByUpdatedAtInput = inputObjectType({
+          name: 'PostOrderByUpdatedAtInput',
+          definition(t) {
+            t.nonNull.field('updatedAt', { type: 'SortOrder' })
+          },
+        })
+        
+        const UserUniqueInput = inputObjectType({
+          name: 'UserUniqueInput',
+          definition(t) {
+            t.int('id')
+            t.string('email')
+          },
+        })
+        
+        const PostCreateInput = inputObjectType({
+          name: 'PostCreateInput',
+          definition(t) {
+            t.nonNull.string('title')
+            t.string('content')
+          },
+        })
+        
+        const UserCreateInput = inputObjectType({
+          name: 'UserCreateInput',
+          definition(t) {
+            t.nonNull.string('email')
+            t.string('name')
+            t.list.nonNull.field('posts', { type: 'PostCreateInput' })
+          },
+        })
+        
+        export const schema = makeSchema({
+          types: [
+            Query,
+            Mutation,
+            Post,
+            User,
+            UserUniqueInput,
+            UserCreateInput,
+            PostCreateInput,
+            SortOrder,
+            PostOrderByUpdatedAtInput,
+            DateTime,
+          ],
+          outputs: {
+            schema: __dirname + '/../schema.graphql',
+            typegen: __dirname + '/generated/nexus.ts',
+          },
+          contextType: {
+            module: require.resolve('./context'),
+            export: 'Context',
+          },
+          sourceTypes: {
+            modules: [
+              {
+                module: '@prisma/client',
+                alias: 'prisma',
+              },
+            ],
+          },
+        })
