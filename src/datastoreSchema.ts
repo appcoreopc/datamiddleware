@@ -17,6 +17,7 @@ export const DateTime = asNexusMethod(GraphQLDateTime, 'date')
 const Query = objectType({
   name: 'Query',
   definition(t) {
+
     t.nonNull.list.nonNull.field('allUsers', {
       type: 'User',
       resolve: (_parent, _args, context: Context) => {
@@ -85,11 +86,11 @@ const Query = objectType({
               email: args.userUniqueInput.email || undefined,
             },
           })
-          .posts({
-            where: {
-              published: false,
-            },
-          })
+          // .posts({
+          //   where: {
+          //     published: false,
+          //   },
+          // })
         },
       })
     },
@@ -98,53 +99,54 @@ const Query = objectType({
   const Mutation = objectType({
     name: 'Mutation',
     definition(t) {
-      t.nonNull.field('signupUser', {
-        type: 'User',
-        args: {
-          data: nonNull(
-            arg({
-              type: 'UserCreateInput',
-            }),
-            ),
-          },
-          resolve: (_, args, context: Context) => {
-            const postData = args.data.posts?.map((post:any) => {
-              return { title: post.title, content: post.content || undefined }
-            })
-            return context.prisma.user.create({
-              data: {
-                name: args.data.name,
-                email: args.data.email,
-                posts: {
-                  create: postData,
-                },
-              },
-            })
-          },
-        })
+
+      // t.nonNull.field('signupUser', {
+      //   type: 'User',
+      //   args: {
+      //     data: nonNull(
+      //       arg({
+      //         type: 'UserCreateInput',
+      //       }),
+      //       ),
+      //     },
+      //     resolve: (_, args, context: Context) => {
+      //       const postData = args.data.posts?.map((post:any) => {
+      //         return { title: post.title, content: post.content || undefined }
+      //       })
+      //       return context.prisma.user.create({
+      //         data: {
+      //           name: args.data.name,
+      //           email: args.data.email,
+      //           // posts: {
+      //           //   create: postData,
+      //           // },
+      //         },
+      //       })
+      //     },
+      //   })
         
-        t.field('createDraft', {
-          type: 'Post',
-          args: {
-            data: nonNull(
-              arg({
-                type: 'PostCreateInput',
-              }),
-              ),
-              authorEmail: nonNull(stringArg()),
-            },
-            resolve: (_, args, context: Context) => {
-              return context.prisma.post.create({
-                data: {
-                  title: args.data.title,
-                  content: args.data.content,
-                  author: {
-                    connect: { email: args.authorEmail },
-                  },
-                },
-              })
-            },
-          })
+        // t.field('createDraft', {
+        //   type: 'Post',
+        //   args: {
+        //     data: nonNull(
+        //       arg({
+        //         type: 'PostCreateInput',
+        //       }),
+        //       ),
+        //       authorEmail: nonNull(stringArg()),
+        //     },
+        //     resolve: (_, args, context: Context) => {
+        //       return context.prisma.post.create({
+        //         data: {
+        //           title: args.data.title,
+        //           content: args.data.content,
+        //           // author: {
+        //           //   connect: { email: args.authorEmail },
+        //           // },
+        //         },
+        //       })
+        //     },
+        //   })
           
           t.field('togglePublishPost', {
             type: 'Post',
@@ -171,22 +173,24 @@ const Query = objectType({
               },
             })
             
-            t.field('incrementPostViewCount', {
-              type: 'Post',
-              args: {
-                id: nonNull(intArg()),
-              },
-              resolve: (_, args, context: Context) => {
-                return context.prisma.post.update({
-                  where: { id: args.id || undefined },
-                  data: {
-                    viewCount: {
-                      increment: 1,
-                    },
-                  },
-                })
-              },
-            })
+            // t.field('incrementPostViewCount', {
+            //   type: 'Post',
+            //   args: {
+            //     id: nonNull(intArg()),
+            //   },
+            //   resolve: (_, args, context: Context) => {
+            //     return context.prisma.post.update(
+            //     {
+            //       where: { id: args.id || undefined },
+            //       // data: {
+            //       //   viewCount: {
+            //       //     increment: 1,
+            //       //   },
+            //       // },
+            //     }
+            //     )
+            //   },
+            // })
             
             t.field('deletePost', {
               type: 'Post',
@@ -205,6 +209,7 @@ const Query = objectType({
         const User = objectType({
           name: 'User',
           definition(t) {
+
             t.nonNull.int('id')
             t.string('name')
             t.nonNull.string('email')
@@ -215,7 +220,7 @@ const Query = objectType({
                 .findUnique({
                   where: { id: parent.id || undefined },
                 })
-                .posts()
+               // .posts()
               },
             })
           },
@@ -238,7 +243,7 @@ const Query = objectType({
                 .findUnique({
                   where: { id: parent.id || undefined },
                 })
-                .author()
+               // .author()
               },
             })
           },
