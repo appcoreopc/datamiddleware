@@ -2,6 +2,13 @@
 ### Do not make changes to this file directly
 
 
+type CovidNotice {
+  Description: String
+  Details: String
+  Id: Int!
+  Title: String
+}
+
 """
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -33,6 +40,8 @@ input PostOrderByUpdatedAtInput {
 }
 
 type Query {
+  allCovidNotice: [CovidNotice!]!
+  allTravelNotice: [TravelNotice!]!
   allUsers: [User!]!
   draftsByUser(userUniqueInput: UserUniqueInput!): [Post]
   feed(orderBy: PostOrderByUpdatedAtInput, searchString: String, skip: Int, take: Int): [Post!]!
@@ -42,6 +51,13 @@ type Query {
 enum SortOrder {
   asc
   desc
+}
+
+type TravelNotice {
+  Description: String
+  Details: String
+  Id: Int!
+  Title: String
 }
 
 type User {

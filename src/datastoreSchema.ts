@@ -24,7 +24,21 @@ const Query = objectType({
         return context.prisma.user.findMany()
       },
     })
-    
+
+    t.nonNull.list.nonNull.field('allCovidNotice', {
+      type: 'CovidNotice',
+      resolve: (_parent, _args, context: Context) => {
+        return context.prisma.covidNotice.findMany()
+      },
+    })
+
+    t.nonNull.list.nonNull.field('allTravelNotice', {
+      type: 'TravelNotice',
+      resolve: (_parent, _args, context: Context) => {
+        return context.prisma.travelNotice.findMany()
+      },
+    })
+
     t.nullable.field('postById', {
       type: 'Post',
       args: {
@@ -205,6 +219,29 @@ const Query = objectType({
             })
           },
         })
+
+
+        const TravelNotice = objectType({
+          name: 'TravelNotice',
+          definition(t) {
+
+            t.nonNull.int('Id')
+            t.string('Title')
+            t.string('Description')
+            t.string('Details')        
+          },
+        })
+
+        const CovidNotice = objectType({
+          name: 'CovidNotice',
+          definition(t) {
+
+            t.nonNull.int('Id')
+            t.string('Title')
+            t.string('Description')
+            t.string('Details')        
+          },
+        })        
         
         const User = objectType({
           name: 'User',
@@ -292,6 +329,8 @@ const Query = objectType({
             Mutation,
             Post,
             User,
+            TravelNotice,
+            CovidNotice,
             UserUniqueInput,
             UserCreateInput,
             PostCreateInput,
