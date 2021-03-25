@@ -32,3 +32,17 @@ model User {
   posts   Post[]
   profile Profile?
 }
+
+model CovidNotice {
+  id     Int     @default(autoincrement()) @id
+  title  String?
+  description  String?
+  details  String?
+}
+
+model TravelNotice {
+  id     Int     @default(autoincrement()) @id
+  title  String?
+  description  String?
+  details  String?
+}
