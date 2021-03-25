@@ -4,10 +4,26 @@ import { resolvers } from "./resolvers";
 import { context } from './context';
 import { schema }  from "./datastoreSchema";
 
+//import { PrismaClient } from '@prisma/client'
+//const prisma = new PrismaClient()
+
+// async function main() {
+//   const allUsers = await prisma.user.findMany();
+//   console.log(allUsers);
+// }
+
+// main()
+//   .catch(e => {
+//     throw e
+//   })
+//   .finally(async () => {
+//     await prisma.$disconnect()
+//   })
+
 const server = new ApolloServer(
   {
-    typeDefs: typeDefs, 
-    resolvers: resolvers, 
+    //typeDefs: typeDefs, 
+    //resolvers: resolvers, 
     context: context,
     schema: schema
   });
