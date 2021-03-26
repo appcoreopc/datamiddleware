@@ -18,3 +18,16 @@ mutation {
     Id
   }
 }
+
+Mutation to create notices
+
+mutation{
+  createNotice(id:3, title:"Sample notice", details:"Other notices", description:"other notice")
+  {
+    Id
+  }
+}
+
+Please ensure it corresponse to args that has been defined.
+
+  
