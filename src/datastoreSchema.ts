@@ -266,8 +266,13 @@ const Query = objectType({
                 details: nonNull(stringArg())                
               },
               resolve: (_, args, context: Context) => {
-                return context.prisma.notices.delete({
-                  where: { Id: args.id },
+                return context.prisma.notices.create({
+                   data: {
+                     Id: args.id,
+                     Title: args.title,
+                     Description: args.description,
+                     Details: args.details
+                   }
                 })
               },
             })
