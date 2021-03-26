@@ -29,6 +29,7 @@ input PostOrderByUpdatedAtInput {
 
 type Query {
   CovidNotice: Notices
+  TravelNotice: Notices
   notices: [Notices!]
 }
 

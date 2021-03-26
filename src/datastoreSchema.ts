@@ -11,6 +11,7 @@ import {
 } from 'nexus'
 import { GraphQLDateTime } from 'graphql-iso-date'
 import { Context } from './context'
+import { CovidNoticeKey, TravelNoticeKey } from "./constants/key";
 
 export const DateTime = asNexusMethod(GraphQLDateTime, 'date')
 
@@ -30,11 +31,23 @@ const Query = objectType({
       resolve: (_parent, _args, context: Context) => {
         return context.prisma.notices.findFirst(
           {
-            where: { Title: "Covid Notice" }
+            where: { Title: CovidNoticeKey }
           }
         )
       },
     })
+
+    t.field('TravelNotice', {
+      type: 'Notices',
+      resolve: (_parent, _args, context: Context) => {
+        return context.prisma.notices.findFirst(
+          {
+            where: { Title: TravelNoticeKey }
+          }
+        )
+      },
+    })
+
 
     // t.nonNull.list.nonNull.field('covidNotice', {
     //   type: 'CovidNotice',
