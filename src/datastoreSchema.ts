@@ -48,7 +48,6 @@ const Query = objectType({
       },
     })
 
-
     // t.nonNull.list.nonNull.field('covidNotice', {
     //   type: 'CovidNotice',
     //   resolve: (_parent, _args, context: Context) => {
@@ -243,7 +242,7 @@ const Query = objectType({
             //     return context.prisma.post.delete({
             //       where: { id: args.id },
             //     })
-            //   },
+            //   }
             // })
                  
             t.field('deleteNotice', {
@@ -258,13 +257,26 @@ const Query = objectType({
               },
             })
 
+            t.field('createNotice', {
+              type: 'Notices',
+              args: {
+                id: nonNull(intArg()),
+                title: nonNull(stringArg()),
+                description: nonNull(stringArg()),
+                details: nonNull(stringArg())                
+              },
+              resolve: (_, args, context: Context) => {
+                return context.prisma.notices.delete({
+                  where: { Id: args.id },
+                })
+              },
+            })
           },
         })
 
         const  Notices = objectType({
           name: 'Notices',
           definition(t) {
-
             t.nonNull.int('Id')
             t.string('Title')
             t.string('Description')
